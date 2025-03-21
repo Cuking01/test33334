@@ -1,0 +1,3 @@
+[submodule "CuSDK"]
+	path = CuSDK
+	url = https://github.com/Cuking01/CuSDK.git
