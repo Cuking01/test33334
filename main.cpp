@@ -93,19 +93,19 @@ struct Tester
 	{
 		calc_modp();
 		modp[0].print(std::format("modp {}~{}:",i,i+30));
-		modp[1].print(std::format("modp {}~{}:",i+30,i+60));
-		modp[2].print(std::format("modp {}~{}:",i+60,i+90));
-		modp[3].print(std::format("modp {}~{}:",i+90,i+120));
+		//modp[1].print(std::format("modp {}~{}:",i+30,i+60));
+		//modp[2].print(std::format("modp {}~{}:",i+60,i+90));
+		//modp[3].print(std::format("modp {}~{}:",i+90,i+120));
 
 		enter_mogo();
 
 		x[0].print(std::format("x {}~{}:",i,i+30));
-		x[1].print(std::format("x {}~{}:",i+30,i+60));
-		x[2].print(std::format("x {}~{}:",i+60,i+90));
-		x[3].print(std::format("x {}~{}:",i+90,i+120));
+		//x[1].print(std::format("x {}~{}:",i+30,i+60));
+		//x[2].print(std::format("x {}~{}:",i+60,i+90));
+		//x[3].print(std::format("x {}~{}:",i+90,i+120));
 
-		pow333();
-		leave_mogo();
+		//pow333();
+		//leave_mogo();
 
 		VU64x8 four=set1(4ull),zero=set1(0ull),mask=set1((1ull<<52)-1);
 		x=x+four;
@@ -173,9 +173,13 @@ struct Tester
 		zero.setzero();
 
 		x=madd52lo(zero,vk,mod);
-		x=zero-x;   //求出1的蒙哥马利域的值
+		x=zero-x;   //求出1的蒙哥马利域的值，但可能会差若干个p
+
+		x[0].print("mogo_1");
 
 		mul_mod(x,x); //求1的平方，依然是1，但是值的范围会压缩到[0,p)内
+
+		x[0].print("mogo_1_0p");
 
 		Pack<VU64x8,4> y;
 		y=x+x;
@@ -203,12 +207,18 @@ struct Tester
 		zero.setzero();
 
 		xl=madd52lo(zero,a,b);
+		xl[0].print("xl");
 		xh=madd52hi(zero,a,b);
+		xh[0].print("xh");
 		a=madd52lo(zero,xl,modp);
+		a[0].print("xp\'");
 		a=madd52hi(xh,a,mod);
+		a[0].print("ans\'");
 
 		if constexpr(need_jmod)
 			jmod<4>(a,mod);
+
+		a[0].print("ans");
 	}
 };
 
@@ -223,7 +233,7 @@ int main()
 {
 	puts("******");
 	u3 l=120*10000000;
-	u3 r=l+240;
+	u3 r=l+30;
 	u3 offset[8]={1ull,7ull,11ull,13ull,17ull,19ull,23ull,29ull};
 	for(u3 i=l;i<r;i+=30)
 	{
@@ -232,7 +242,7 @@ int main()
 		puts("");
 	}
 
-	Tester tester(l,240);
+	Tester tester(l,120);
 
 	if(tester.test())
 	{
