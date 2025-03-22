@@ -92,18 +92,7 @@ struct Tester
 	ALWAYS_INLINE void check()
 	{
 		calc_modp();
-		modp[0].print(std::format("modp {}~{}:",i,i+30));
-		//modp[1].print(std::format("modp {}~{}:",i+30,i+60));
-		//modp[2].print(std::format("modp {}~{}:",i+60,i+90));
-		//modp[3].print(std::format("modp {}~{}:",i+90,i+120));
-
 		enter_mogo();
-
-		x[0].print(std::format("x {}~{}:",i,i+30));
-		//x[1].print(std::format("x {}~{}:",i+30,i+60));
-		//x[2].print(std::format("x {}~{}:",i+60,i+90));
-		//x[3].print(std::format("x {}~{}:",i+90,i+120));
-
 		pow333();
 		leave_mogo();
 
@@ -120,10 +109,10 @@ struct Tester
 		// flag=flag|(x[3]==zero);
 		// ans=flag&mod[3];
 
-		x[0].print(std::format("{}~{}:",i,i+30));
-		x[1].print(std::format("{}~{}:",i+30,i+60));
-		x[2].print(std::format("{}~{}:",i+60,i+90));
-		x[3].print(std::format("{}~{}:",i+90,i+120));
+		// x[0].print(std::format("{}~{}:",i,i+30));
+		// x[1].print(std::format("{}~{}:",i+30,i+60));
+		// x[2].print(std::format("{}~{}:",i+60,i+90));
+		// x[3].print(std::format("{}~{}:",i+90,i+120));
 
 		x[0,1]=min(x[0,1],x[2,3]);
 		flag=min(x[0],x[1]);
@@ -173,17 +162,10 @@ struct Tester
 
 		x=madd52lo(zero,vk,mod);
 		x=zero-x;   //求出1的蒙哥马利域的值，但可能会差若干个p
-
-		x[0].print("mogo_1");
-
 		mul_mod(x,x); //求1的平方，依然是1，但是值的范围会压缩到[0,p)内
-
-		x[0].print("mogo_1_0p");
-
 		Pack<VU64x8,4> y;
 		y=x+x;
 		y=y+x; //求出3在蒙哥马利域的值。
-
 		mul_mod(x,y); //1*3，得到3并把范围压缩到[0,p);
 	}
 
@@ -228,15 +210,21 @@ int main()
 	puts("******");
 	u3 l=120*10000000;
 	u3 r=l+30;
-	u3 offset[8]={1ull,7ull,11ull,13ull,17ull,19ull,23ull,29ull};
-	for(u3 i=l;i<r;i+=30)
-	{
-		for(int j=0;j<8;j++)
-			printf("%llu ",calc_r(i+offset[j]));
-		puts("");
-	}
+	// u3 offset[8]={1ull,7ull,11ull,13ull,17ull,19ull,23ull,29ull};
+	// for(u3 i=l;i<r;i+=30)
+	// {
+	// 	for(int j=0;j<8;j++)
+	// 		printf("%llu ",calc_r(i+offset[j]));
+	// 	puts("");
+	// }
 
-	Tester tester(l,120);
+	int st=clock();
+
+	Tester tester(l,120ull*1000*1000*1000);
+
+	int ed=clock();
+
+	printf("time=%d\n",ed-st);
 
 	if(tester.test())
 	{
