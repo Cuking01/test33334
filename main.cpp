@@ -104,8 +104,8 @@ struct Tester
 		//x[2].print(std::format("x {}~{}:",i+60,i+90));
 		//x[3].print(std::format("x {}~{}:",i+90,i+120));
 
-		//pow333();
-		//leave_mogo();
+		pow333();
+		leave_mogo();
 
 		VU64x8 four=set1(4ull),zero=set1(0ull),mask=set1((1ull<<52)-1);
 		x=x+four;
@@ -191,9 +191,10 @@ struct Tester
 	{
 		VU64x8 zero;
 		zero.setzero();
+		VU64x8 one=set1(1ull);
 
 		x=madd52lo(zero,x,modp);
-		x=madd52hi(zero,x,mod);
+		x=madd52hi(one,x,mod);
 
 		jmod<4>(x,mod);
 	}
@@ -202,23 +203,16 @@ struct Tester
 	ALWAYS_INLINE void mul_mod(Pack_Ref<VU64x8,4> a,Pack_CRef<VU64x8,4> b)
 	{
 		Pack<VU64x8,4> xl,xh;
-		VU64x8 zero;
+		VU64x8 zero,one=set1(1ull);
 		zero.setzero();
 
 		xl=madd52lo(zero,a,b);
-		xl[0].print("xl");
-		xh=madd52hi(zero,a,b);
-		xh[0].print("xh");
+		xh=madd52hi(one,a,b);
 		a=madd52lo(zero,xl,modp);
-		a[0].print("xp\'");
-		xl=zero-mod;
 		a=madd52hi(xh,a,mod);
-		a[0].print("ans\'");
 
 		if constexpr(need_jmod)
 			jmod<4>(a,mod);
-
-		a[0].print("ans");
 	}
 };
 
