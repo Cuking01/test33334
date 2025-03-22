@@ -221,12 +221,13 @@ int main()
 	int st=clock();
 
 	Tester tester(l,120ull*1000*1000*1000);
+	bool ret=tester.test();
 
 	int ed=clock();
 
 	printf("time=%d\n",ed-st);
 
-	if(tester.test())
+	if(ret)
 	{
 		puts("may be a prime.");
 	}
