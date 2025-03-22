@@ -92,7 +92,18 @@ struct Tester
 	ALWAYS_INLINE void check()
 	{
 		calc_modp();
+		modp[0].print(std::format("modp {}~{}:",i,i+30));
+		modp[1].print(std::format("modp {}~{}:",i+30,i+60));
+		modp[2].print(std::format("modp {}~{}:",i+60,i+90));
+		modp[3].print(std::format("modp {}~{}:",i+90,i+120));
+
 		enter_mogo();
+
+		x[0].print(std::format("x {}~{}:",i,i+30));
+		x[1].print(std::format("x {}~{}:",i+30,i+60));
+		x[2].print(std::format("x {}~{}:",i+60,i+90));
+		x[3].print(std::format("x {}~{}:",i+90,i+120));
+
 		pow333();
 		leave_mogo();
 
