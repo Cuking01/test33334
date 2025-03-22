@@ -162,7 +162,6 @@ struct Tester
 			t=madd52lo(two,modp,mod);
 			modp=madd52lo(zero,modp,t);
 		}
-		modp=zero-modp;
 	}
 
 	ALWAYS_INLINE void enter_mogo()
@@ -212,6 +211,7 @@ struct Tester
 		xh[0].print("xh");
 		a=madd52lo(zero,xl,modp);
 		a[0].print("xp\'");
+		xl=zero-mod;
 		a=madd52hi(xh,a,mod);
 		a[0].print("ans\'");
 
