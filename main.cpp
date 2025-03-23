@@ -94,8 +94,11 @@ struct Tester
 	{
 		calc_modp();
 		enter_mogo();
+		x[2].print("enter");
 		pow333();
+		x[2].print("pow333");
 		leave_mogo();
+		x[2].print("leave");
 
 		VU64x8 four=set1(4ull),zero=set1(0ull),mask=set1((1ull<<52)-1);
 		x=x+four;
