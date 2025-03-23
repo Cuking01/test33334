@@ -64,7 +64,7 @@ struct Tester
 
 	Pack<VU64x8,4> mod,modp;  //模数和蒙哥马利模乘参数
 	Pack<VU64x8,4> x;
-	VU64x8 flag,ans;
+	VU64x8 flag,ans,zero,one,two,four;
 
 	u3 mod_offset;
 	u3 i;
@@ -76,6 +76,10 @@ struct Tester
 		VU64x8 offset=set1(mod_offset);
 		mod[0]=init_value+offset;
 		mod[1,2,3]=mod[0,1,2]+step;
+		zero.setzero();
+		one=set1(1ull);
+		two=set1(2ull);
+		four=set1(4ull);
 	}
 
 	ALWAYS_INLINE void pow333()
@@ -102,7 +106,7 @@ struct Tester
 		leave_mogo();
 		x[2].print("leave");
 
-		VU64x8 four=set1(4ull),zero=set1(0ull),mask=set1((1ull<<52)-1);
+		VU64x8 mask=set1((1ull<<52)-1);
 		x=x+four;
 		jmod<4>(x,mod);
 		x=x&mask;
@@ -166,8 +170,6 @@ struct Tester
 
 	ALWAYS_INLINE void calc_modp()
 	{
-		VU64x8 zero,two=set1(2ull);
-		zero.setzero();
 		modp[0]=set1(1ull);
 		modp[1,2,3]=modp[0];
 
@@ -184,8 +186,6 @@ struct Tester
 	{
 		u3 k=(1ull<<52)/(mod_offset+i+119ull);
 		VU64x8 vk=set1(k);
-		VU64x8 zero;
-		zero.setzero();
 
 		modp[2].print("modp");
 
@@ -203,27 +203,24 @@ struct Tester
 
 	ALWAYS_INLINE void leave_mogo()
 	{
-		VU64x8 zero;
-		zero.setzero();
-		VU64x8 one=set1(1ull);
+		// x=madd52lo(zero,x,modp);
+		// x=madd52hi(one,x,mod);
 
-		x=madd52lo(zero,x,modp);
-		x=madd52hi(one,x,mod);
-
-		jmod<4>(x,mod);
+		// jmod<4>(x,mod);
+		mul_mod(x,one);
 	}
 
 	template<bool need_jmod=true>
 	ALWAYS_INLINE void mul_mod(Pack_Ref<VU64x8,4> a,Pack_CRef<VU64x8,4> b)
 	{
 		Pack<VU64x8,4> xl,xh;
-		VU64x8 zero,one=set1(1ull);
-		zero.setzero();
 
 		xl=madd52lo(zero,a,b);
-		xh=madd52hi(one,a,b);
-		a=madd52lo(zero,xl,modp);
-		a=madd52hi(xh,a,mod);
+		xh=madd52hi(zero,a,b);
+		a=madd52lo(zero,xl,modp); 
+		xh=xh+mod;
+		a=madd52hi(zero,a,mod);
+		a=xh-a;
 
 		if constexpr(need_jmod)
 			jmod<4>(a,mod);
