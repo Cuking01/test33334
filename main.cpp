@@ -205,6 +205,50 @@ u3 calc_r(u3 mod)
 	return ans;
 }
 
+#include <thread>
+#include <condition_variable>
+
+bool test_for(u3 l,u3 block_size,u3 block_num,u3 thread_num)
+{
+	std::mutex mtx;
+	std::condition_variable cv;
+	std::atomic<u3> cnt=0;
+	std::atomic<u3> block_id=0;
+	std::atomic<bool> passed=true;
+	std::vector<std::thread> work_threads;
+	work_threads.reserve(thread_num);
+
+	auto worker=[&mtx,&cv,&cnt,&block_id,&passed,l,block_size,block_num]()
+	{
+		while(1)
+		{
+			u3 cur_id=block_id++;
+			if(cur_id>=block_num)break;
+
+			Tester tester(l+cur_id*block_size,block_size);
+			if(!tester.test())
+			{
+				passed=false;
+				break;
+			}
+		}
+
+		cnt++;
+		cv.notify_all();
+	};
+
+	for(u3 i=0;i<thread_num;i++)
+		work_threads.emplace_back(worker);
+	
+	std::unique_lock lock(mtx);
+	cv.wait(lock,[&]{return cnt==thread_num||passed==false;});
+
+	for(auto&thread:work_threads)
+		thread.join();
+
+	return passed;
+}
+
 int main()
 {
 	puts("******");
@@ -220,8 +264,7 @@ int main()
 
 	int st=clock();
 
-	Tester tester(l,120ull*1000*1000*1000);
-	bool ret=tester.test();
+	bool ret=test_for(l,120ull*83334,1000,16);
 
 	int ed=clock();
 
