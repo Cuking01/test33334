@@ -119,6 +119,17 @@ struct Tester
 				if(tmp[j]!=calc_r(mod_offset+i+offset[j%8]+(j/8)*30))
 				{
 					puts("Error.");
+					printf("%llu %llu\n",mod_offset,i);
+					x[0].print("x[0]");
+					x[1].print("x[1]");
+					x[2].print("x[2]");
+					x[3].print("x[3]");
+
+					for(int j=0;j<32;j++)
+					{
+						printf("%llu ",calc_r(mod_offset+i+offset[j%8]+(j/8)*30));
+						if(j%8==7)puts("");
+					}
 					exit(0);
 				}
 		}
