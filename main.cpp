@@ -85,7 +85,9 @@ struct Tester
 		{
 			t=x;
 			mul_mod<false>(t,t);
+			t[2].print(std::format("pow3({}) 1",i));
 			mul_mod<false>(x,t);
+			x[2].print(std::format("pow3({}) 2",i));
 		}
 	}
 
