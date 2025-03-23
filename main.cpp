@@ -264,7 +264,7 @@ int main()
 
 	int st=clock();
 
-	bool ret=test_for(l,120ull*83334,1000,16);
+	bool ret=test_for(l,120ull*833334,1000,16);
 
 	int ed=clock();
 
