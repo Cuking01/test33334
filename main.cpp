@@ -89,6 +89,7 @@ struct Tester
 		}
 	}
 
+	template<bool check_algorithm=false>
 	ALWAYS_INLINE void check()
 	{
 		calc_modp();
@@ -98,21 +99,29 @@ struct Tester
 
 		VU64x8 four=set1(4ull),zero=set1(0ull),mask=set1((1ull<<52)-1);
 		x=x+four;
+		jmod<4>(x,mod);
 		x=x&mask;
 
-		// flag=flag|(x[0]==zero);
-		// ans=flag&mod[0];
-		// flag=flag|(x[1]==zero);
-		// ans=flag&mod[1];
-		// flag=flag|(x[2]==zero);
-		// ans=flag&mod[2];
-		// flag=flag|(x[3]==zero);
-		// ans=flag&mod[3];
+		if constexpr(check_algorithm)
+		{
+			static constexpr u3 offset[8]={1ull,7ull,11ull,13ull,17ull,19ull,23ull,29ull};
 
-		// x[0].print(std::format("{}~{}:",i,i+30));
-		// x[1].print(std::format("{}~{}:",i+30,i+60));
-		// x[2].print(std::format("{}~{}:",i+60,i+90));
-		// x[3].print(std::format("{}~{}:",i+90,i+120));
+			auto calc_r=[](u3 mod)
+			{
+				u3 ans=pow_mod(3,7625597484987,mod);
+				ans=(ans+4)%mod;
+				return ans;
+			};
+
+			alignas(64) u3 tmp[32];
+			x.store(tmp);
+			for(int j=0;j<32;j++)
+				if(tmp[j]!=calc_r(mod_offset+i+offset[j%8]+(j/8)*30))
+				{
+					puts("Error.");
+					exit(0);
+				}
+		}
 
 		x[0,1]=min(x[0,1],x[2,3]);
 		flag=min(x[0],x[1]);
@@ -120,12 +129,13 @@ struct Tester
 	}
 
 	//测试素性
+	template<bool check_algorithm=false>
 	ALWAYS_INLINE bool test()
 	{
 		VU64x8 step=set1(120ull);
 		while(i<num)
 		{
-			check();
+			check<check_algorithm>();
 			mod=mod+step;
 			i+=120;
 		}
@@ -134,34 +144,6 @@ struct Tester
 		flag.store(tmp);
 		for(int i=0;i<8;i++)
 			if(tmp[i]==0)
-				return false;
-		return true;
-	}
-
-	//测试算法正确性
-	ALWAYS_INLINE bool check_algorithm()
-	{
-		VU64x8 step=set1(120ull);
-		while(i<num)
-		{
-			check();
-			mod=mod+step;
-			i+=120;
-		}
-
-		auto calc_r=[](u3 mod)
-		{
-			u3 r=pow_mod(3,7625597484987,mod);
-			r=(r+4)%mod;
-			return r;
-		};
-
-		static constexpr u3 offset[8]={1ull,7ull,11ull,13ull,17ull,19ull,23ull,29ull};
-
-		alignas(64) u3 tmp[8];
-		flag.store(tmp);
-		for(int j=0;j<8;j++)
-			if(tmp[j]!=calc_r(mod_offset+i+offset[j]));
 				return false;
 		return true;
 	}
@@ -278,7 +260,7 @@ bool check_algorithm(u3 l)
 	for(u3 i=0;i<100000000000000ull;i+=100000000000ull)
 	{
 		Tester tester(l+i,120*100);
-		if(!tester.check_algorithm())
+		if(!tester.test<true>())
 			return false;
 	}
 	return true;
@@ -288,15 +270,7 @@ int main()
 {
 	u3 l=120*10000000;
 
-	if(check_algorithm(l))
-	{
-		puts("OK");
-	}
-	else
-	{
-		puts("Error.");
-		return 0;
-	}
+	check_algorithm(l);
 
 	int st=clock();
 
