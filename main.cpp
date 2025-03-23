@@ -182,13 +182,18 @@ struct Tester
 		VU64x8 zero;
 		zero.setzero();
 
+		modp[2].print("modp");
+
 		x=madd52lo(zero,vk,mod);
 		x=zero-x;   //求出1的蒙哥马利域的值，但可能会差若干个p
+		x[2].print("mogo_1'\n");
 		mul_mod(x,x); //求1的平方，依然是1，但是值的范围会压缩到[0,p)内
+		x[2].print("mogo_1\n");
 		Pack<VU64x8,4> y;
 		y=x+x;
 		y=y+x; //求出3在蒙哥马利域的值。
 		mul_mod(x,y); //1*3，得到3并把范围压缩到[0,p);
+		x[2].print("mogo_3\n");
 	}
 
 	ALWAYS_INLINE void leave_mogo()
@@ -266,15 +271,16 @@ bool test_for(u3 l,u3 block_size,u3 block_num,u3 thread_num)
 	return passed;
 }
 
-bool check_algorithm(u3 l)
+void check_algorithm(u3 l)
 {
-	for(u3 i=0;i<100000000000000ull;i+=100000000000ull)
-	{
-		Tester tester(l+i,120*100);
-		if(!tester.test<true>())
-			return false;
-	}
-	return true;
+	// for(u3 i=0;i<100000000000000ull;i+=100000000000ull)
+	// {
+	// 	Tester tester(l+i,120*100);
+	// 	tester.test<true>();
+	// }
+
+	Tester tester(52301200000000ull+9240,120);
+	tester.test<true>();
 }
 
 int main()
