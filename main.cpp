@@ -180,6 +180,8 @@ struct Tester
 			t=madd52lo(two,modp,mod);
 			modp=madd52lo(zero,modp,t);
 		}
+
+		modp=zero-modp;
 	}
 
 	ALWAYS_INLINE void enter_mogo()
