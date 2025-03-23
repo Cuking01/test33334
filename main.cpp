@@ -119,6 +119,7 @@ struct Tester
 
 	}
 
+	//测试素性
 	ALWAYS_INLINE bool test()
 	{
 		VU64x8 step=set1(120ull);
@@ -133,6 +134,34 @@ struct Tester
 		flag.store(tmp);
 		for(int i=0;i<8;i++)
 			if(tmp[i]==0)
+				return false;
+		return true;
+	}
+
+	//测试算法正确性
+	ALWAYS_INLINE bool check_algorithm()
+	{
+		VU64x8 step=set1(120ull);
+		while(i<num)
+		{
+			check();
+			mod=mod+step;
+			i+=120;
+		}
+
+		auto calc_r=[](u3 mod)
+		{
+			u3 r=pow_mod(3,7625597484987,mod);
+			r=(r+4)%mod;
+			return r;
+		};
+
+		static constexpr u3 offset[8]={1ull,7ull,11ull,13ull,17ull,19ull,23ull,29ull};
+
+		alignas(64) u3 tmp[8];
+		flag.store(tmp);
+		for(int j=0;j<8;j++)
+			if(tmp[j]!=calc_r(mod_offset+i+offset[j]));
 				return false;
 		return true;
 	}
@@ -198,12 +227,7 @@ struct Tester
 	}
 };
 
-u3 calc_r(u3 mod)
-{
-	u3 ans=pow_mod(3,7625597484987,mod);
-	ans=(ans+4)%mod;
-	return ans;
-}
+
 
 #include <thread>
 #include <condition_variable>
@@ -249,22 +273,34 @@ bool test_for(u3 l,u3 block_size,u3 block_num,u3 thread_num)
 	return passed;
 }
 
+bool check_algorithm(u3 l)
+{
+	for(u3 i=0;i<100000000000000ull;i+=100000000000ull)
+	{
+		Tester tester(l+i,120*100);
+		if(!tester.check_algorithm())
+			return false;
+	}
+	return true;
+}
+
 int main()
 {
-	puts("******");
 	u3 l=120*10000000;
-	u3 r=l+30;
-	// u3 offset[8]={1ull,7ull,11ull,13ull,17ull,19ull,23ull,29ull};
-	// for(u3 i=l;i<r;i+=30)
-	// {
-	// 	for(int j=0;j<8;j++)
-	// 		printf("%llu ",calc_r(i+offset[j]));
-	// 	puts("");
-	// }
+
+	if(check_algorithm(l))
+	{
+		puts("OK");
+	}
+	else
+	{
+		puts("Error.");
+		return 0;
+	}
 
 	int st=clock();
 
-	bool ret=test_for(l,120ull*833334,1000,16);
+	bool ret=test_for(l,120ull*833334,1000,32);
 
 	int ed=clock();
 
@@ -278,14 +314,4 @@ int main()
 	{
 		puts("not a prime.");
 	}
-
-	// for(int i=1;i<=101;i+=2)
-	// {
-	// 	Mogo_F mf(i+(1ull<<50));
-
-	// 	mf.test_modp();
-	// 	mf.test_modp_newton();
-	// }
-	
-
 }
